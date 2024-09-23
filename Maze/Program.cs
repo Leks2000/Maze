@@ -1,64 +1,71 @@
 ﻿namespace Maze
 {
+    /// <summary>
+    /// Основной класс программы
+    /// </summary>
     internal class Program
     {
         static void Main(string[] args)
         {
-            bool playAgain = true;
+            Console.WriteLine("Управление на WASD");
+            Console.WriteLine("Нажмите любую клавишу для продолжения: ");
+            Console.ReadKey();
 
-            while (playAgain)
+            while (true)
             {
-                Console.Clear(); // Очищаем консоль для новой игры
-                Console.WriteLine("Введите размер лабиринта (ширина и высота):");
-                Console.WriteLine("Минимум: 5x5, Максимум: 100x25");
+                Console.Clear();
+                Console.WriteLine("Введите размер лабиринта (высота и ширина):");
+                Console.WriteLine("Минимум: 5x5, Максимум: 25х50");
 
-                int height, width;
+                int width, height;
 
-                // Проверяем корректность ввода для высоты
-                while (true)
-                {
-                    Console.Write("Высота (5-50): ");
-                    if (int.TryParse(Console.ReadLine(), out height) && height >= 5 && height <= 50)
-                    {
-                        break; // Корректный ввод, выходим из цикла
-                    }
-                    else
-                    {
-                        Console.WriteLine("Неверный ввод. Пожалуйста, введите число от 5 до 25.");
-                    }
-                }
-
-                // Проверяем корректность ввода для ширины
-                while (true)
-                {
-                    Console.Write("Ширина (5-25): ");
-                    if (int.TryParse(Console.ReadLine(), out width) && width >= 5 && width <= 25)
-                    {
-                        break;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Неверный ввод. Пожалуйста, введите число от 5 до 100.");
-                    }
-                }
+                width = GetValidSize("Ширина", 5, 50);
+                height = GetValidSize("Высота", 5, 25);
 
                 Console.Clear();
 
-                var game = new Game(height, width);
+                var game = new Game(width, height);
                 game.Run();
 
                 Console.WriteLine("\nХотите сыграть еще раз? (Y/N): ");
-                var response = Console.ReadKey(true).Key;
-
-                // Проверка ответа пользователя
-                if (response == ConsoleKey.N)
+                while (true)
                 {
-                    playAgain = false;
+                    var response = Console.ReadKey(true).Key;
+
+                    if (response == ConsoleKey.Y)
+                    {
+                        break;
+                    }
+                    else if (response == ConsoleKey.N)
+                    {
+                        Console.WriteLine("\nСпасибо за игру! Нажмите любую клавишу для выхода...");
+                        Console.ReadKey();
+                        return;
+                    }
+                    else
+                    {
+                        Console.WriteLine("\nНеверная клавиша. Пожалуйста, нажмите Y, чтобы продолжить, или N, чтобы выйти.");
+                    }
                 }
             }
+        }
 
-            Console.WriteLine("Спасибо за игру! Нажмите любую клавишу для выхода...");
-            Console.ReadKey();
+        private static int GetValidSize(string dimension, int min, int max)
+        {
+            int size;
+            while (true)
+            {
+                Console.Write($"{dimension} ({min}-{max}): ");
+                if (int.TryParse(Console.ReadLine(), out size) && size >= min && size <= max)
+                {
+                    break;
+                }
+                else
+                {
+                    Console.WriteLine($"Неверный ввод. Пожалуйста, введите число от {min} до {max}.");
+                }
+            }
+            return size;
         }
     }
 }

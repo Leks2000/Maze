@@ -1,8 +1,7 @@
 ﻿namespace Maze
 {
-
     /// <summary>
-    /// Представляет игрока в лабиринте.
+    /// Класс игрока
     /// </summary>
     internal class Player
     {
