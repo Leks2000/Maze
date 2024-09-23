@@ -1,13 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Maze
+﻿namespace Maze
 {
     /// <summary>
-    /// Представляет лабиринт.
+    /// Класс лабиринта.
     /// </summary>
     internal class Maze
     {
@@ -25,16 +19,15 @@ namespace Maze
         }
 
         /// <summary>
-        /// Генерирует проходимый лабиринт.
+        /// Генерирация лабиринта.
         /// </summary>
-        public void Generate()
+        public void GenerateMaze()
         {
             Stack<(int x, int y)> stack = new Stack<(int x, int y)>();
             var rand = new Random();
             int[] dx = { 1, 0, -1, 0 };
             int[] dy = { 0, 1, 0, -1 };
 
-            // Заполняем лабиринт стенами
             for (var i = 0; i < Height; i++)
             {
                 for (var j = 0; j < Width; j++)
@@ -45,25 +38,24 @@ namespace Maze
 
             var startX = 1;
             var startY = 1;
-            Grid[startY, startX] = 0; // Стартовая точка - путь
+            Grid[startY, startX] = 0;
             stack.Push((startX, startY));
 
             while (stack.Count > 0)
             {
-                var (x, y) = stack.Pop();
+                var (posX, posY) = stack.Pop();
                 List<int> directions = new List<int> { 0, 1, 2, 3 }.OrderBy(d => rand.Next()).ToList();
 
                 foreach (var direction in directions)
                 {
-                    var nx = x + dx[direction] * 2;
-                    var ny = y + dy[direction] * 2;
+                    var newX = posX + dx[direction] * 2;
+                    var newY = posY + dy[direction] * 2;
 
-                    // Проверяем границы и наличие пути
-                    if (nx > 0 && ny > 0 && nx < Width - 1 && ny < Height - 1 && Grid[ny, nx] == 1)
+                    if (newX > 0 && newY > 0 && newX < Width - 1 && newY < Height - 1 && Grid[newY, newX] == 1)
                     {
-                        Grid[ny, nx] = 0; // Прокладываем путь
-                        Grid[y + dy[direction], x + dx[direction]] = 0; // Пробиваем стену
-                        stack.Push((nx, ny)); // Добавляем новую точку в стек
+                        Grid[newY, newX] = 0;
+                        Grid[posY + dy[direction], posX + dx[direction]] = 0;
+                        stack.Push((newX, newY));
                     }
                 }
             }
@@ -71,9 +63,11 @@ namespace Maze
         /// <summary>
         /// Отрисовывает лабиринт с учетом видимости.
         /// </summary>
+        /// <remarks>Туман войны</remarks>
+        /// <param name="player">Позиция игрока</param>
         public void Draw(Player player)
         {
-            var visionRange = 3; // Радиус видимости игрока
+            var visionRange = 3;
 
             for (var i = 0; i < Height; i++)
             {
@@ -81,7 +75,7 @@ namespace Maze
                 {
                     if (Math.Abs(i - player.Y) <= visionRange && Math.Abs(j - player.X) <= visionRange)
                     {
-                        Revealed[i, j] = true; // Открываем клетки в радиусе видимости
+                        Revealed[i, j] = true;
                     }
 
                     if (Revealed[i, j])

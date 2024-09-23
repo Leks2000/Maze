@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Maze
+﻿namespace Maze
 {
     /// <summary>
     /// Основной класс игры.
@@ -13,23 +7,23 @@ namespace Maze
     {
         private Maze maze;
         private Player player;
-        private int enxPosX;
-        private int endPosY;
+        private PlayerMovement playerMovement;
+        private int exitX;
+        private int exitY;
 
         public Game(int width, int height)
         {
             maze = new Maze(width, height);
             player = new Player('☺');
             var rand = new Random();
-            maze.Generate();
+            maze.GenerateMaze();
             (player.X, player.Y) = maze.GetRandomFreePosition(rand);
-            (enxPosX, endPosY) = maze.GetRandomFreePosition(rand);
-            maze.Grid[endPosY, enxPosX] = 3; // Финиш
+            (exitX, exitY) = maze.GetRandomFreePosition(rand);
+            maze.Grid[exitY, exitX] = 3;
+
+            playerMovement = new PlayerMovement(maze, player);
         }
 
-        /// <summary>
-        /// Запускает игру.
-        /// </summary>
         public void Run()
         {
             Console.CursorVisible = false;
@@ -37,58 +31,25 @@ namespace Maze
             Console.SetCursorPosition(player.X, player.Y);
             Console.Write(player.Symbol);
 
-            bool running = true;
 
-            while (running)
+            while (true)
             {
                 var key = Console.ReadKey(true);
-                MovePlayer(key.Key);
+                playerMovement.Move(key.Key);
 
                 maze.Draw(player);
                 Console.SetCursorPosition(player.X, player.Y);
                 Console.Write(player.Symbol);
 
-                // Проверка на победу
-                if (player.X == enxPosX && player.Y == endPosY)
+                if (player.X == exitX && player.Y == exitY)
                 {
-                    running = false;
+                    break;
                 }
             }
 
             Console.Clear();
             Console.SetCursorPosition(50, 15);
             Console.WriteLine("Вы прошли лабиринт");
-        }
-
-        private void MovePlayer(ConsoleKey key)
-        {
-            int newX = player.X, newY = player.Y;
-
-            if (key == ConsoleKey.W && maze.Grid[player.Y - 1, player.X] != 1)
-            {
-                newY--;
-            }
-            if (key == ConsoleKey.S && maze.Grid[player.Y + 1, player.X] != 1)
-            {
-                newY++;
-            }
-
-            if (key == ConsoleKey.A && maze.Grid[player.Y, player.X - 1] != 1)
-            {
-                newX--;
-            }
-
-            if (key == ConsoleKey.D && maze.Grid[player.Y, player.X + 1] != 1)
-            {
-                newX++;
-            }
-
-            // Обновляем положение игрока
-            if (newX != player.X || newY != player.Y)
-            {
-                player.X = newX;
-                player.Y = newY;
-            }
         }
     }
 
